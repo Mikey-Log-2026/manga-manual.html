@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4コマ操作マニュアル</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f0f0f0; }
+        .manga-container { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; }
+        .panel { width: 300px; height: 250px; background: white; border: 4px solid #333; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 8px; }
+        .step-num { position: absolute; top: 5px; left: 5px; background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .description { padding: 10px; font-size: 14px; font-weight: bold; }
+        .image-placeholder { width: 80%; height: 120px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #999; }
+    </style>
+</head>
+<body>
+
+    <h1>📱 iPhone操作マニュアル</h1>
+    <p>4コマでわかる！日本語設定の手順</p>
+
+    <div class="manga-container">
+        <div class="panel">
+            <span class="step-num">1</span>
+            <div class="image-placeholder">【設定アイコンをタップ】</div>
+            <div class="description">まずは「Settings」を開きます</div>
+        </div>
+
+        <div class="panel">
+            <span class="step-num">2</span>
+            <div class="image-placeholder">【Generalを選択】</div>
+            <div class="description">「General」をタップして進むよ</div>
+        </div>
+
+        <div class="panel">
+            <span class="step-num">3</span>
+            <div class="image-placeholder">【言語設定へ】</div>
+            <div class="description">「Language & Region」を探してね</div>
+        </div>
+
+        <div class="panel">
+            <span class="step-num">4</span>
+            <div class="image-placeholder">【完了！】</div>
+            <div class="description">「日本語」を選べばバッチリ！</div>
+        </div>
+    </div>
+
+    <p><a href="gate.html">ゲート画面へ戻る</a></p>
+
+</body>
+</html>
