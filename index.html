@@ -1,50 +1,39 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4コマ操作マニュアル</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; background: #f0f0f0; }
-        .manga-container { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; }
-        .panel { width: 300px; height: 250px; background: white; border: 4px solid #333; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 8px; }
-        .step-num { position: absolute; top: 5px; left: 5px; background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
-        .description { padding: 10px; font-size: 14px; font-weight: bold; }
-        .image-placeholder { width: 80%; height: 120px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #999; }
-    </style>
-</head>
-<body>
+# MiKey Log - フォークリフト貸出管理システム
 
-    <h1>📱 iPhone操作マニュアル</h1>
-    <p>4コマでわかる！日本語設定の手順</p>
+MiKey Logを活用した、現場のDX（デジタルトランスフォーメーション）事例を紹介します。
 
-    <div class="manga-container">
-        <div class="panel">
-            <span class="step-num">1</span>
-            <div class="image-placeholder">【設定アイコンをタップ】</div>
-            <div class="description">まずは「Settings」を開きます</div>
-        </div>
+## 📋 導入の背景と解決策
+これまで有人窓口で行っていたフォークリフトの鍵貸出業務を、**MiKey Log**によって自動化しました。
 
-        <div class="panel">
-            <span class="step-num">2</span>
-            <div class="image-placeholder">【Generalを選択】</div>
-            <div class="description">「General」をタップして進むよ</div>
-        </div>
+| 項目 | 導入前（Before） | 導入後（After / MiKey Log） |
+| :--- | :--- | :--- |
+| **貸出方法** | 担当窓口へ行き、対面で借りる | ヘルメットのQRをスキャンして自動解錠 |
+| **待ち時間** | 担当者不在時は作業がストップ | 24時間いつでも数秒で貸出可能 |
+| **記録管理** | 手書き台帳（紛失のリスク） | ダッシュボードへ自動保存（リアルタイム可視化） |
 
-        <div class="panel">
-            <span class="step-num">3</span>
-            <div class="image-placeholder">【言語設定へ】</div>
-            <div class="description">「Language & Region」を探してね</div>
-        </div>
+---
 
-        <div class="panel">
-            <span class="step-num">4</span>
-            <div class="image-placeholder">【完了！】</div>
-            <div class="description">「日本語」を選べばバッチリ！</div>
-        </div>
-    </div>
+## 🎨 4コマでわかる！MiKey Log導入メリット
 
-    <p><a href="gate.html">ゲート画面へ戻る</a></p>
+![MiKey Log 導入メリット 4コマ漫画](comic.png)
 
-</body>
-</html>
+> 💡 **【4コマ漫画の内容】**
+> 
+> * **第1コマ：アナログな壁**
+>     担当者が不在で、鍵が借りられず作業が止まってしまう。
+> * **第2コマ：管理の負担**
+>     手書き台帳への記入に時間がかかり、窓口に行列ができる。
+> * **第3コマ：QRで解決**
+>     ヘルメットのQRコードをかざすだけで、キーボックスが自動解錠！
+> * **第4コマ：DXの実現**
+>     履歴はすべてダッシュボードへ。現場の手間ゼロ、管理の安心100！
+
+---
+
+## 🛠 技術的な仕組み
+- **認証**: QRコードによる個人識別
+- **ハードウェア**: スマートキーボックス + QRスキャナー
+- **データ管理**: クラウドダッシュボードによる利用ログの保存・解析
+
+---
+© 2026 MiKey Log Project
