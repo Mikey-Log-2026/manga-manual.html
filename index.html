@@ -7,7 +7,6 @@
         body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; background-color: #f9f9f9; }
         h1 { color: #0056b3; border-bottom: 2px solid #0056b3; }
         
-        /* モニター稼働中のアニメーション */
         .monitor {
             background: #222; color: #0f0; padding: 10px; border: 5px solid #555; border-radius: 5px;
             font-family: monospace; font-size: 1.2em; text-align: center; margin: 20px 0;
@@ -15,17 +14,17 @@
         }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        .manga-container { position: relative; text-align: center; }
+        .manga-container { text-align: center; }
         img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; }
         
         .play-button { 
             background: #ff9800; color: white; border: none; padding: 15px 30px; 
             font-size: 1.1em; border-radius: 50px; cursor: pointer; margin: 20px 0;
-            box-shadow: 0 4px #e68a00;
+            box-shadow: 0 4px #e68a00; width: 80%; max-width: 400px;
         }
         .play-button:active { box-shadow: none; transform: translateY(4px); }
         
-        .narration { font-style: italic; color: #555; background: #fffbe6; padding: 15px; border-left: 5px solid #ffe58f; display: none; }
+        #narrationBox { font-style: italic; color: #555; background: #fffbe6; padding: 15px; border-left: 5px solid #ffe58f; margin-top: 20px; opacity: 0; transition: opacity 0.5s; }
     </style>
 </head>
 <body>
@@ -38,30 +37,41 @@
     </div>
 
     <div style="text-align:center;">
-        <button class="play-button" onclick="playEffect()">🔊 現場のDXを体験する</button>
+        <button class="play-button" onclick="playDXExperience()">🔊 現場のDXを体験する</button>
     </div>
 
-    <div id="narrationBox" class="narration">
+    <div id="narrationBox">
         <strong>ナレーション：</strong><br>
         「誰が・いつ・何を借りたのか自動で記録。管理の手間もゼロで、安心100％！」
     </div>
 
     <script>
-        function playEffect() {
-            // 効果音の代わり（ブラウザの標準音）
+        function playDXExperience() {
+            // 1. 効果音「ピピーン！」
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // ピ
-            oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1); // ピーン
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
+            oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1); 
             oscillator.connect(audioCtx.destination);
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.3);
 
-            // ナレーションを表示
-            document.getElementById('narrationBox').style.display = 'block';
+            // 2. ナレーション表示
+            const box = document.getElementById('narrationBox');
+            box.style.opacity = '1';
+
+            // 3. 音声読み上げ（ナレーション）
+            const uttr = new SpeechSynthesisUtterance();
+            uttr.text = "誰が、いつ、何を借りたのか自動で記録。管理の手間もゼロで、安心100パーセント！";
+            uttr.lang = "ja-JP"; // 日本語
+            uttr.rate = 1.0;     // 読み上げ速度
+            uttr.pitch = 1.0;    // 声の高さ
             
-            alert("ピピーン！\n\n「誰が・いつ・何を借りたのか自動で記録。管理の手間もゼロで、安心100％！」");
+            // 少し遅らせてナレーション開始
+            setTimeout(() => {
+                window.speechSynthesis.speak(uttr);
+            }, 500);
         }
     </script>
 </body>
