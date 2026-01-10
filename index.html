@@ -4,30 +4,65 @@
     <meta charset="UTF-8">
     <title>MiKey Log - フォークリフト貸出管理システム</title>
     <style>
-        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; }
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; background-color: #f9f9f9; }
         h1 { color: #0056b3; border-bottom: 2px solid #0056b3; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; margin-top: 20px; }
+        
+        /* モニター稼働中のアニメーション */
+        .monitor {
+            background: #222; color: #0f0; padding: 10px; border: 5px solid #555; border-radius: 5px;
+            font-family: monospace; font-size: 1.2em; text-align: center; margin: 20px 0;
+            animation: blink 2s infinite;
+        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .manga-container { position: relative; text-align: center; }
+        img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; }
+        
+        .play-button { 
+            background: #ff9800; color: white; border: none; padding: 15px 30px; 
+            font-size: 1.1em; border-radius: 50px; cursor: pointer; margin: 20px 0;
+            box-shadow: 0 4px #e68a00;
+        }
+        .play-button:active { box-shadow: none; transform: translateY(4px); }
+        
+        .narration { font-style: italic; color: #555; background: #fffbe6; padding: 15px; border-left: 5px solid #ffe58f; display: none; }
     </style>
 </head>
 <body>
     <h1>MiKey Log - フォークリフト貸出管理システム</h1>
-    <p>MiKey Logを活用した、現場のDX（デジタルトランスフォーメーション）事例を紹介します。</p>
 
-    <h2>📋 導入の背景と解決策</h2>
-    <table>
-        <tr><th>項目</th><th>導入前</th><th>導入後（MiKey Log）</th></tr>
-        <tr><td>貸出方法</td><td>対面で借りる</td><td>QRをスキャンして自動解錠</td></tr>
-        <tr><td>待ち時間</td><td>担当者不在で停止</td><td>数秒で貸出可能</td></tr>
-        <tr><td>記録管理</td><td>手書き台帳</td><td>自動保存</td></tr>
-    </table>
+    <div class="monitor">● MiKey Log 稼働中... SYSTEM ONLINE</div>
 
-    <hr>
-    <h2>🎨 4コマでわかる！MiKey Log導入メリット</h2>
-    <img src="manga_4.png" alt="MiKey Log 導入メリット 4コマ漫画">
+    <div class="manga-container">
+        <img src="manga_4.png" alt="MiKey Log 4コマ漫画">
+    </div>
 
-    <p>© 2026 MiKey Log Project</p>
+    <div style="text-align:center;">
+        <button class="play-button" onclick="playEffect()">🔊 現場のDXを体験する</button>
+    </div>
+
+    <div id="narrationBox" class="narration">
+        <strong>ナレーション：</strong><br>
+        「誰が・いつ・何を借りたのか自動で記録。管理の手間もゼロで、安心100％！」
+    </div>
+
+    <script>
+        function playEffect() {
+            // 効果音の代わり（ブラウザの標準音）
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // ピ
+            oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1); // ピーン
+            oscillator.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+
+            // ナレーションを表示
+            document.getElementById('narrationBox').style.display = 'block';
+            
+            alert("ピピーン！\n\n「誰が・いつ・何を借りたのか自動で記録。管理の手間もゼロで、安心100％！」");
+        }
+    </script>
 </body>
 </html>
