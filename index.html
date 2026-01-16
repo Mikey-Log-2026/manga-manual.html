@@ -2,83 +2,96 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MiKey Log - 4コマDX体験</title>
+    <title>MiKey Log - 迫力の4コマDX</title>
     <style>
         body { 
             font-family: 'Helvetica Neue', Arial, sans-serif; 
             margin: 0; padding: 0; 
-            background-color: #f0f2f5; 
+            background-color: #1a1a1a; /* 集中できるよう背景を暗く */
             display: flex; flex-direction: column; align-items: center;
             overflow-x: hidden;
+            color: #fff;
         }
         
         h1 { color: #0056b3; width: 100%; text-align: center; padding: 20px 0; background: white; margin: 0; }
 
-        /* 漫画を表示する窓（ここからはみ出た分を隠す） */
+        /* 漫画を表示する窓 */
         .manga-viewport {
-            width: 90%;
-            max-width: 600px;
-            height: 450px; /* 1コマが見える高さに調整 */
+            width: 95%;
+            max-width: 500px;
+            height: 400px; 
             margin: 20px auto;
             overflow: hidden;
-            border: 5px solid #333;
-            border-radius: 15px;
+            border: 6px solid #ff9800; /* 目立つ枠線 */
+            border-radius: 10px;
             background: #fff;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 0 30px rgba(255, 152, 0, 0.5);
         }
 
-        /* 4コマ画像本体（これを動かす） */
+        /* 漫画画像本体 */
         #mangaImage {
             width: 100%;
             height: auto;
             position: absolute;
             top: 0;
             left: 0;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: top center;
+            /* ズームの滑らかさを調整 */
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: center center;
         }
+
+        /* 2コマ目の「ズーン」で画面を揺らすアニメーション */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(-1deg); }
+            40% { transform: translate(3px, 2px) rotate(1deg); }
+            60% { transform: translate(-3px, 1px) rotate(-1deg); }
+            80% { transform: translate(3px, 1px) rotate(1deg); }
+            100% { transform: translate(1px, -2px) rotate(0deg); }
+        }
+        .shaking { animation: shake 0.5s infinite; }
 
         .controls { text-align: center; width: 100%; padding-bottom: 40px; }
         
         .play-button { 
-            background: #ff9800; color: white; border: none; padding: 18px 40px; 
-            font-size: 1.2em; font-weight: bold; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 6px #e68a00; transition: 0.2s; width: 80%; max-width: 400px;
+            background: #ff9800; color: white; border: none; padding: 20px 40px; 
+            font-size: 1.4em; font-weight: bold; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 6px #e68a00; transition: 0.2s; width: 90%; max-width: 400px;
         }
         .play-button:active { transform: translateY(4px); box-shadow: none; }
 
         #narrationBox { 
-            font-size: 1.1em; font-weight: bold; color: #444; background: #fffbe6; 
-            padding: 15px; border-left: 8px solid #ffe58f; margin: 20px auto; 
-            width: 80%; max-width: 600px; min-height: 60px; border-radius: 4px;
+            font-size: 1.2em; font-weight: bold; color: #333; background: #fff; 
+            padding: 20px; border-left: 10px solid #ff9800; margin: 20px auto; 
+            width: 85%; max-width: 600px; min-height: 80px; border-radius: 8px;
             opacity: 0; transition: 0.5s;
         }
     </style>
 </head>
 <body>
 
-    <h1>MiKey Log - フォークリフト貸出管理</h1>
+    <h1>MiKey Log DX Experience</h1>
 
-    <div class="manga-viewport">
+    <div class="manga-viewport" id="viewport">
         <img src="manga_4.png" id="mangaImage" alt="4コマ漫画">
     </div>
 
     <div class="controls">
-        <button class="play-button" onclick="playDXExperience()">🔊 ズーム読み上げ開始</button>
+        <button class="play-button" onclick="playDXExperience()">🔥 迫力のズーム再生！</button>
         
         <div id="narrationBox">
-            <div id="mangaStatus" style="color:#0056b3; font-size:0.8em;"></div>
+            <div id="mangaStatus" style="color:#ff9800; font-size:0.9em; margin-bottom:5px;"></div>
             <div id="speechText"></div>
         </div>
     </div>
 
     <script>
         const mangaScripts = [
-            { label: "【1コマ目】", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", pause: 1000, pos: "0%" },
-            { label: "【2コマ目】", text: "ズーン！……まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ。うわぁー、行列出来ているわぁ。もぉー、なんとかならないのかしら！", pause: 1200, pos: "-25%" },
-            { label: "【3コマ目】", text: "ピピーン！そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", pause: 1000, pos: "-50%" },
-            { label: "【4コマ目】", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", pause: 2000, pos: "-75%" }
+            { label: "【1コマ目】", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", pause: 800, y: "37%", scale: 2.2 },
+            { label: "【2コマ目】", text: "ズーン！……まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！うわぁー、行列出来ているわぁ。もぉー、なんとかならないのかしら！", pause: 1000, y: "12%", scale: 2.5, effect: "shake" },
+            { label: "【3コマ目】", text: "ピピーン！そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", pause: 800, y: "-12%", scale: 2.5 },
+            { label: "【4コマ目】", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", pause: 1500, y: "-37%", scale: 2.2 }
         ];
 
         let isPlaying = false;
@@ -88,6 +101,7 @@
             isPlaying = true;
 
             const img = document.getElementById('mangaImage');
+            const vp = document.getElementById('viewport');
             const box = document.getElementById('narrationBox');
             const status = document.getElementById('mangaStatus');
             const textEl = document.getElementById('speechText');
@@ -97,26 +111,33 @@
             for (let i = 0; i < mangaScripts.length; i++) {
                 const script = mangaScripts[i];
                 
-                // 1. コマをズームアップ（移動）
-                // 画像が縦長（4コマ）の場合、1コマ25%ずつずらします
-                img.style.transform = `translateY(${script.pos}) scale(1.1)`;
+                // エフェクト解除
+                vp.classList.remove('shaking');
+
+                // 1. 超ズームアップ設定
+                // scale(2.5) で大きくし、translateY でそのコマを中央に持ってくる
+                img.style.transform = `translateY(${script.y}) scale(${script.scale})`;
 
                 // 2. テキスト更新
                 status.innerText = script.label;
                 textEl.innerText = script.text;
 
-                // 3. 読み上げ
+                // 3. 特殊エフェクト（揺れ）
+                if (script.effect === "shake") {
+                    setTimeout(() => vp.classList.add('shaking'), 200);
+                }
+
+                // 4. 読み上げ
                 await speak(script.text);
 
-                // 4. 次のコマへ行く前の「溜め」
+                // 5. 溜め
                 await new Promise(r => setTimeout(r, script.pause));
-                
-                // ズームを少し戻す演出（オプション）
-                img.style.transform = `translateY(${script.pos}) scale(1.0)`;
             }
 
+            vp.classList.remove('shaking');
+            img.style.transform = "translateY(0) scale(1.0)";
             status.innerText = "完了";
-            textEl.innerText = "MiKey Logでスマートな現場へ！";
+            textEl.innerText = "MiKey Logで現場のDXを実現！";
             isPlaying = false;
         }
 
@@ -127,9 +148,9 @@
                 uttr.lang = "ja-JP";
                 
                 if (text.includes("ズーン")) {
-                    uttr.pitch = 0.5; uttr.rate = 0.8;
+                    uttr.pitch = 0.4; uttr.rate = 0.7;
                 } else if (text.includes("ピピーン")) {
-                    uttr.pitch = 1.4; uttr.rate = 1.2;
+                    uttr.pitch = 1.6; uttr.rate = 1.3;
                 } else {
                     uttr.pitch = 1.0; uttr.rate = 1.1;
                 }
