@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MiKey Log - 効果音付き4コマ解説</title>
+    <title>MiKey Log - 効果音演出付き4コマ</title>
     <style>
         body { 
             font-family: 'Helvetica Neue', Arial, sans-serif; 
@@ -23,7 +23,7 @@
         #mangaImage {
             width: 100%; height: auto; position: absolute;
             top: 0; left: 0;
-            transition: transform 1.2s ease-in-out;
+            transition: transform 1.5s ease-in-out;
             transform: scale(1.0);
             transform-origin: center center;
         }
@@ -53,7 +53,7 @@
     </div>
 
     <div class="controls">
-        <button class="play-button" onclick="playDXExperience()">🔊 効果音付きで再生</button>
+        <button class="play-button" onclick="playDXExperience()">🔊 4コマを再生する</button>
         <div id="narrationBox">
             <div id="mangaStatus" style="color:#ff9800; font-weight:bold; font-size: 0.9em;"></div>
             <div id="speechText"></div>
@@ -61,7 +61,7 @@
     </div>
 
     <script>
-        // オーディオ設定
+        // AudioContextの初期化
         let audioCtx;
 
         function initAudio() {
@@ -70,46 +70,46 @@
             }
         }
 
-        // 効果音：ピピーン
-        function playPipin() {
+        // 効果音（電子音）の生成
+        function playSE(type) {
+            initAudio();
             const now = audioCtx.currentTime;
-            [880, 1320].forEach((freq, i) => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, now + (i * 0.1));
-                gain.gain.setValueAtTime(0.1, now + (i * 0.1));
-                gain.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.1) + 0.2);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now + (i * 0.1));
-                osc.stop(now + (i * 0.1) + 0.2);
-            });
+
+            if (type === 'pipin') { // ピピーン（3コマ目：右下）
+                [880, 1320].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + (i * 0.1));
+                    gain.gain.setValueAtTime(0.1, now + (i * 0.1));
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.1) + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + (i * 0.1));
+                    osc.stop(now + (i * 0.1) + 0.2);
+                });
+            } else if (type === 'jajaan') { // ジャジャーン（4コマ目：左下）
+                [261.63, 329.63, 392.00, 523.25].forEach(freq => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 1.0);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 1.0);
+                });
+            }
         }
 
-        // 効果音：ジャジャーン
-        function playJajaan() {
-            const now = audioCtx.currentTime;
-            // 和音（Cコードに近い構成）
-            [261.63, 329.63, 392.00, 523.25].forEach(freq => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle'; // 少し厚みのある音
-                osc.frequency.setValueAtTime(freq, now);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0, now + 1.0);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now);
-                osc.stop(now + 1.0);
-            });
-        }
-
+        // シナリオ設定
         const mangaScripts = [
-            { label: "1コマ目", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", origin: "top left", scale: 1.5 },
-            { label: "2コマ目", text: "まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！行列出来ているわぁ。", origin: "top right", scale: 1.5 },
-            { label: "3コマ目", text: "そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", origin: "bottom right", scale: 1.5, se: "pipin" },
-            { label: "4コマ目", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", origin: "bottom left", scale: 1.5, se: "jajaan" }
+            { label: "1コマ目（左上）", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", origin: "top left", scale: 1.5 },
+            { label: "2コマ目（右上）", text: "まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！行列出来ているわぁ。", origin: "top right", scale: 1.5 },
+            { label: "3コマ目（右下）", text: "そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", origin: "bottom right", scale: 1.5, se: "pipin" },
+            { label: "4コマ目（左下）", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", origin: "bottom left", scale: 1.5, se: "jajaan" }
         ];
 
         async function playDXExperience() {
@@ -126,22 +126,26 @@
             for (let i = 0; i < mangaScripts.length; i++) {
                 const script = mangaScripts[i];
                 
+                // ズーム実行
                 img.style.transformOrigin = script.origin;
                 img.style.transform = `scale(${script.scale})`;
+
                 status.innerText = script.label;
                 textEl.innerText = script.text;
 
                 // 効果音のトリガー
-                if (script.se === "pipin") playPipin();
-                if (script.se === "jajaan") playJajaan();
+                if (script.se) {
+                    setTimeout(() => playSE(script.se), 300);
+                }
 
                 await speak(script.text);
-                await new Promise(r => setTimeout(r, 800));
+                await new Promise(r => setTimeout(r, 800)); // コマ間の間隔
             }
 
+            // 終了後に全体表示へ戻す
             img.style.transform = "scale(1.0)";
             status.innerText = "完了";
-            textEl.innerText = "MiKey Logで現場のDXを加速させましょう！";
+            textEl.innerText = "MiKey Logでスマートな現場管理を！";
         }
 
         function speak(text) {
