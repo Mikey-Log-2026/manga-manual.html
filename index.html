@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MiKey Log - 効果音演出付き4コマ</title>
+    <title>MiKey Log - 効果音強化版</title>
     <style>
         body { 
             font-family: 'Helvetica Neue', Arial, sans-serif; 
@@ -61,7 +61,6 @@
     </div>
 
     <script>
-        // AudioContextの初期化
         let audioCtx;
 
         function initAudio() {
@@ -70,41 +69,41 @@
             }
         }
 
-        // 効果音（電子音）の生成
         function playSE(type) {
             initAudio();
             const now = audioCtx.currentTime;
 
-            if (type === 'pipin') { // ピピーン（3コマ目：右下）
-                [880, 1320].forEach((freq, i) => {
+            if (type === 'pipin') {
+                // ピピーン：音量を0.1から0.4へ大幅アップ
+                [880, 1320, 1760].forEach((freq, i) => {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + (i * 0.1));
-                    gain.gain.setValueAtTime(0.1, now + (i * 0.1));
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.1) + 0.2);
+                    osc.frequency.setValueAtTime(freq, now + (i * 0.08));
+                    gain.gain.setValueAtTime(0.4, now + (i * 0.08)); // 音量を強化
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.08) + 0.3);
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
-                    osc.start(now + (i * 0.1));
-                    osc.stop(now + (i * 0.1) + 0.2);
+                    osc.start(now + (i * 0.08));
+                    osc.stop(now + (i * 0.08) + 0.3);
                 });
-            } else if (type === 'jajaan') { // ジャジャーン（4コマ目：左下）
-                [261.63, 329.63, 392.00, 523.25].forEach(freq => {
+            } else if (type === 'jajaan') {
+                // ジャジャーン：和音の数を増やし、音量を0.5へ。波形をsquareにして力強く。
+                [261.63, 329.63, 392.00, 523.25, 659.25].forEach(freq => {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
-                    osc.type = 'triangle';
+                    osc.type = 'square'; // ギザギザした力強い音
                     osc.frequency.setValueAtTime(freq, now);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.linearRampToValueAtTime(0, now + 1.0);
+                    gain.gain.setValueAtTime(0.3, now); // 音量を強化
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
                     osc.start(now);
-                    osc.stop(now + 1.0);
+                    osc.stop(now + 1.2);
                 });
             }
         }
 
-        // シナリオ設定
         const mangaScripts = [
             { label: "1コマ目（左上）", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", origin: "top left", scale: 1.5 },
             { label: "2コマ目（右上）", text: "まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！行列出来ているわぁ。", origin: "top right", scale: 1.5 },
@@ -126,23 +125,20 @@
             for (let i = 0; i < mangaScripts.length; i++) {
                 const script = mangaScripts[i];
                 
-                // ズーム実行
                 img.style.transformOrigin = script.origin;
                 img.style.transform = `scale(${script.scale})`;
-
                 status.innerText = script.label;
                 textEl.innerText = script.text;
 
-                // 効果音のトリガー
                 if (script.se) {
-                    setTimeout(() => playSE(script.se), 300);
+                    // ズームが始まってから少し遅れて鳴らす
+                    setTimeout(() => playSE(script.se), 500);
                 }
 
                 await speak(script.text);
-                await new Promise(r => setTimeout(r, 800)); // コマ間の間隔
+                await new Promise(r => setTimeout(r, 1000));
             }
 
-            // 終了後に全体表示へ戻す
             img.style.transform = "scale(1.0)";
             status.innerText = "完了";
             textEl.innerText = "MiKey Logでスマートな現場管理を！";
