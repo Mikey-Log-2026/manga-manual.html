@@ -2,131 +2,83 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MiKey Log - フォークリフト貸出管理システム</title>
+    <title>MiKey Log - 4コマDX体験</title>
     <style>
         body { 
             font-family: 'Helvetica Neue', Arial, sans-serif; 
-            line-height: 1.6; 
-            margin: 0; 
-            padding: 0; 
-            color: #333; 
+            margin: 0; padding: 0; 
             background-color: #f0f2f5; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
         }
         
-        h1 { 
-            color: #0056b3; 
-            width: 100%;
-            text-align: center;
-            padding: 20px 0;
-            margin: 0;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .monitor {
-            background: #222; color: #0f0; padding: 10px 20px; border: 3px solid #555; border-radius: 5px;
-            font-family: 'Courier New', monospace; font-size: 1.1em; text-align: center; margin: 15px 0;
-            animation: blink 2s infinite;
-            width: fit-content;
-        }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        h1 { color: #0056b3; width: 100%; text-align: center; padding: 20px 0; background: white; margin: 0; }
 
-        .manga-container { 
-            width: 95%;
-            max-width: 1200px;
-            margin: 10px auto;
-            background: white;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-radius: 12px;
-            text-align: center;
-        }
-        
-        .manga-container img { 
-            width: 100%;
-            height: auto; 
-            display: block;
-            border-radius: 8px;
+        /* 漫画を表示する窓（ここからはみ出た分を隠す） */
+        .manga-viewport {
+            width: 90%;
+            max-width: 600px;
+            height: 450px; /* 1コマが見える高さに調整 */
+            margin: 20px auto;
+            overflow: hidden;
+            border: 5px solid #333;
+            border-radius: 15px;
+            background: #fff;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .controls {
-            text-align: center;
+        /* 4コマ画像本体（これを動かす） */
+        #mangaImage {
             width: 100%;
-            padding-bottom: 40px;
+            height: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: top center;
         }
+
+        .controls { text-align: center; width: 100%; padding-bottom: 40px; }
         
         .play-button { 
-            background: #ff9800; color: white; border: none; padding: 20px 40px; 
-            font-size: 1.3em; font-weight: bold; border-radius: 50px; cursor: pointer; margin: 20px 0;
-            box-shadow: 0 6px #e68a00; transition: all 0.2s;
-            width: 90%; max-width: 500px;
+            background: #ff9800; color: white; border: none; padding: 18px 40px; 
+            font-size: 1.2em; font-weight: bold; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 6px #e68a00; transition: 0.2s; width: 80%; max-width: 400px;
         }
-        .play-button:hover { background: #ffa726; }
-        .play-button:active { box-shadow: none; transform: translateY(4px); }
-        
+        .play-button:active { transform: translateY(4px); box-shadow: none; }
+
         #narrationBox { 
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #444; 
-            background: #fffbe6; 
-            padding: 20px; 
-            border-left: 8px solid #ffe58f; 
-            margin: 20px auto; 
-            width: 80%;
-            max-width: 800px;
-            min-height: 80px;
-            opacity: 0; 
-            transition: opacity 0.5s; 
-            border-radius: 4px;
-            text-align: left;
+            font-size: 1.1em; font-weight: bold; color: #444; background: #fffbe6; 
+            padding: 15px; border-left: 8px solid #ffe58f; margin: 20px auto; 
+            width: 80%; max-width: 600px; min-height: 60px; border-radius: 4px;
+            opacity: 0; transition: 0.5s;
         }
-        #mangaStatus { color: #0056b3; font-size: 0.9em; margin-bottom: 5px; }
     </style>
 </head>
 <body>
-    <h1>MiKey Log - フォークリフト貸出管理システム</h1>
 
-    <div class="monitor">● MiKey Log 稼働中... SYSTEM ONLINE</div>
+    <h1>MiKey Log - フォークリフト貸出管理</h1>
 
-    <div class="manga-container">
-        <img src="manga_4.png" alt="MiKey Log 4コマ漫画">
+    <div class="manga-viewport">
+        <img src="manga_4.png" id="mangaImage" alt="4コマ漫画">
     </div>
 
     <div class="controls">
-        <button class="play-button" onclick="playDXExperience()">🔊 4コマを読み上げる</button>
+        <button class="play-button" onclick="playDXExperience()">🔊 ズーム読み上げ開始</button>
         
         <div id="narrationBox">
-            <div id="mangaStatus"></div>
+            <div id="mangaStatus" style="color:#0056b3; font-size:0.8em;"></div>
             <div id="speechText"></div>
         </div>
     </div>
 
     <script>
-        // 4コマのセリフと演出設定
         const mangaScripts = [
-            { 
-                label: "【1コマ目】", 
-                text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", 
-                pause: 1200 
-            },
-            { 
-                label: "【2コマ目】", 
-                text: "ズーン！……まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ。うわぁー、行列出来ているわぁ。もぉー、なんとかならないのかしら！", 
-                pause: 1500 
-            },
-            { 
-                label: "【3コマ目】", 
-                text: "ピピーン！そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", 
-                pause: 1000 
-            },
-            { 
-                label: "【4コマ目】", 
-                text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", 
-                pause: 2000 
-            }
+            { label: "【1コマ目】", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", pause: 1000, pos: "0%" },
+            { label: "【2コマ目】", text: "ズーン！……まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ。うわぁー、行列出来ているわぁ。もぉー、なんとかならないのかしら！", pause: 1200, pos: "-25%" },
+            { label: "【3コマ目】", text: "ピピーン！そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", pause: 1000, pos: "-50%" },
+            { label: "【4コマ目】", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", pause: 2000, pos: "-75%" }
         ];
 
         let isPlaying = false;
@@ -135,6 +87,7 @@
             if (isPlaying) return;
             isPlaying = true;
 
+            const img = document.getElementById('mangaImage');
             const box = document.getElementById('narrationBox');
             const status = document.getElementById('mangaStatus');
             const textEl = document.getElementById('speechText');
@@ -144,40 +97,41 @@
             for (let i = 0; i < mangaScripts.length; i++) {
                 const script = mangaScripts[i];
                 
-                // 画面表示の更新
+                // 1. コマをズームアップ（移動）
+                // 画像が縦長（4コマ）の場合、1コマ25%ずつずらします
+                img.style.transform = `translateY(${script.pos}) scale(1.1)`;
+
+                // 2. テキスト更新
                 status.innerText = script.label;
                 textEl.innerText = script.text;
 
-                // 音声合成による読み上げ（完了を待機）
+                // 3. 読み上げ
                 await speak(script.text);
 
-                // コマ間の「溜め（ポーズ）」
+                // 4. 次のコマへ行く前の「溜め」
                 await new Promise(r => setTimeout(r, script.pause));
+                
+                // ズームを少し戻す演出（オプション）
+                img.style.transform = `translateY(${script.pos}) scale(1.0)`;
             }
 
             status.innerText = "完了";
-            textEl.innerText = "MiKey Logで現場をスマートに。";
+            textEl.innerText = "MiKey Logでスマートな現場へ！";
             isPlaying = false;
         }
 
         function speak(text) {
             return new Promise((resolve) => {
-                // 前の読み上げをキャンセル
                 window.speechSynthesis.cancel();
-                
                 const uttr = new SpeechSynthesisUtterance(text);
                 uttr.lang = "ja-JP";
                 
-                // 効果音ワードに応じた声色の変化
                 if (text.includes("ズーン")) {
-                    uttr.pitch = 0.5; // 低く重い声
-                    uttr.rate = 0.8;  // ゆっくり
+                    uttr.pitch = 0.5; uttr.rate = 0.8;
                 } else if (text.includes("ピピーン")) {
-                    uttr.pitch = 1.5; // 高く明るい声
-                    uttr.rate = 1.2;  // 少し速めに
+                    uttr.pitch = 1.4; uttr.rate = 1.2;
                 } else {
-                    uttr.pitch = 1.0; // 標準
-                    uttr.rate = 1.1; 
+                    uttr.pitch = 1.0; uttr.rate = 1.1;
                 }
 
                 uttr.onend = () => resolve();
