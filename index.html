@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MiKey Log - ターゲットズーム（最適化版）</title>
+    <title>MiKey Log - 効果音演出付き4コマ</title>
     <style>
         body { 
             font-family: 'Helvetica Neue', Arial, sans-serif; 
@@ -23,7 +23,6 @@
         #mangaImage {
             width: 100%; height: auto; position: absolute;
             top: 0; left: 0;
-            /* ズームの速さを少し滑らか（1.5秒）に設定 */
             transition: transform 1.5s ease-in-out;
             transform: scale(1.0);
             transform-origin: center center;
@@ -62,44 +61,59 @@
     </div>
 
     <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // AudioContextの初期化
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
 
         // 効果音（電子音）の生成
         function playSE(type) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            initAudio();
+            const now = audioCtx.currentTime;
 
-            if (type === 'pipin') { // ピピーン
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.4);
-            } else if (type === 'zun') { // ズーン
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.6);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.8);
+            if (type === 'pipin') { // ピピーン（3コマ目：右下）
+                [880, 1320].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + (i * 0.1));
+                    gain.gain.setValueAtTime(0.1, now + (i * 0.1));
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.1) + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + (i * 0.1));
+                    osc.stop(now + (i * 0.1) + 0.2);
+                });
+            } else if (type === 'jajaan') { // ジャジャーン（4コマ目：左下）
+                [261.63, 329.63, 392.00, 523.25].forEach(freq => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 1.0);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 1.0);
+                });
             }
         }
 
         // シナリオ設定
-        // scaleを 1.5 に下げて、ズームを控えめにしました。
         const mangaScripts = [
             { label: "1コマ目（左上）", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", origin: "top left", scale: 1.5 },
-            { label: "2コマ目（右上）", text: "まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！　　　行列出来ているわぁ。", origin: "top right", scale: 1.5 },
-            { label: "3コマ目（右下）", origin: "bottom right", scale: 1.5, se: "pipin" },
-            { label: "4コマ目（左下）", text: "そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", origin: "bottom left", scale: 1.5, se: "zun" }
+            { label: "2コマ目（右上）", text: "まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！行列出来ているわぁ。", origin: "top right", scale: 1.5 },
+            { label: "3コマ目（右下）", text: "そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", origin: "bottom right", scale: 1.5, se: "pipin" },
+            { label: "4コマ目（左下）", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", origin: "bottom left", scale: 1.5, se: "jajaan" }
         ];
 
         async function playDXExperience() {
+            initAudio();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
             const img = document.getElementById('mangaImage');
@@ -119,7 +133,7 @@
                 status.innerText = script.label;
                 textEl.innerText = script.text;
 
-                // 効果音のタイミング調整
+                // 効果音のトリガー
                 if (script.se) {
                     setTimeout(() => playSE(script.se), 300);
                 }
