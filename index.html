@@ -1,73 +1,158 @@
-<div id="narrationBox">
-    <div id="mangaStatus" style="font-size: 0.8em; color: #0056b3; margin-bottom: 5px;"></div>
-    <div id="speechText">ボタンを押すとDX体験が始まります</div>
-</div>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>MiKey Log - フォークリフト貸出管理システム</title>
+    <style>
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            line-height: 1.6; 
+            margin: 0; 
+            padding: 0; 
+            color: #333; 
+            background-color: #f0f2f5; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 { 
+            color: #0056b3; 
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            margin: 0;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .monitor {
+            background: #222; color: #0f0; padding: 10px 20px; border: 3px solid #555; border-radius: 5px;
+            font-family: 'Courier New', monospace; font-size: 1.1em; text-align: center; margin: 15px 0;
+            animation: blink 2s infinite;
+            width: fit-content;
+        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-<script>
-    // 4コマ分のセリフデータ
-    const mangaScripts = [
-        { label: "【1コマ目】", text: "「あぁ！また誰がフォークリフト持っていったか分からないよ…」" },
-        { label: "【2コマ目】", text: "「探す時間がもったいない！紙の台帳もグチャグチャだわ。」" },
-        { label: "【3コマ目】", text: "「そこで、マイキーログを導入！スマホをかざすだけでOK！」" },
-        { label: "【4コマ目】", text: "「誰が、いつ、何を借りたのか自動で記録。管理の手間もゼロで、安心100パーセント！」" }
-    ];
-
-    let currentStep = 0;
-    let isPlaying = false;
-
-    async function playDXExperience() {
-        if (isPlaying) return; // 再生中は重複防止
-        isPlaying = true;
-
-        const statusLabel = document.getElementById('mangaStatus');
-        const speechText = document.getElementById('speechText');
-        const box = document.getElementById('narrationBox');
-        box.style.opacity = '1';
-
-        for (let i = 0; i < mangaScripts.length; i++) {
-            const script = mangaScripts[i];
-            
-            // 1. 画面表示の更新
-            statusLabel.innerText = script.label;
-            speechText.innerText = script.text;
-
-            // 2. 効果音（各コマの切り替わり）
-            playBeep();
-
-            // 3. 音声読み上げ
-            await speakText(script.text);
-
-            // 4. 少し待機（次のコマへ）
-            await new Promise(resolve => setTimeout(resolve, 800));
+        .manga-container { 
+            width: 95%;
+            max-width: 1200px;
+            margin: 10px auto;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .manga-container img { 
+            width: 100%;
+            height: auto; 
+            display: block;
+            border-radius: 8px;
         }
 
-        isPlaying = false;
-        statusLabel.innerText = "完了";
-    }
+        .controls {
+            text-align: center;
+            width: 100%;
+            padding-bottom: 40px;
+        }
+        
+        .play-button { 
+            background: #ff9800; color: white; border: none; padding: 20px 40px; 
+            font-size: 1.3em; font-weight: bold; border-radius: 50px; cursor: pointer; margin: 20px 0;
+            box-shadow: 0 6px #e68a00; transition: all 0.2s;
+            width: 90%; max-width: 500px;
+        }
+        .play-button:hover { background: #ffa726; }
+        .play-button:active { box-shadow: none; transform: translateY(4px); }
+        
+        #narrationBox { 
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #444; 
+            background: #fffbe6; 
+            padding: 20px; 
+            border-left: 8px solid #ffe58f; 
+            margin: 20px auto; 
+            width: 80%;
+            max-width: 800px;
+            min-height: 80px;
+            opacity: 0; 
+            transition: opacity 0.5s; 
+            border-radius: 4px;
+            text-align: left;
+        }
+        #mangaStatus { color: #0056b3; font-size: 0.9em; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <h1>MiKey Log - フォークリフト貸出管理システム</h1>
 
-    // 効果音を鳴らす関数
-    function playBeep() {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
-    }
+    <div class="monitor">● MiKey Log 稼働中... SYSTEM ONLINE</div>
 
-    // 音声を読み上げ、終わるまで待機する関数
-    function speakText(text) {
-        return new Promise((resolve) => {
-            const uttr = new SpeechSynthesisUtterance(text);
-            uttr.lang = "ja-JP";
-            uttr.rate = 1.2; // 少しテンポよく
+    <div class="manga-container">
+        <img src="manga_4.png" alt="MiKey Log 4コマ漫画">
+    </div>
+
+    <div class="controls">
+        <button class="play-button" onclick="playDXExperience()">🔊 4コマを読み上げる</button>
+        
+        <div id="narrationBox">
+            <div id="mangaStatus"></div>
+            <div id="speechText"></div>
+        </div>
+    </div>
+
+    <script>
+        // 4コマのセリフ（実際の漫画に合わせて書き換えてください！）
+        const mangaScripts = [
+            { label: "【1コマ目】", text: "あぁ、また誰がフォークリフトを持っていったか分からないよ。" },
+            { label: "【2コマ目】", text: "探す時間がもったいないし、紙の台帳もぐちゃぐちゃだ！" },
+            { label: "【3コマ目】", text: "そこでマイキーログを導入！スマホをかざすだけで貸出完了！" },
+            { label: "【4コマ目】", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで安心100パーセント！" }
+        ];
+
+        let isPlaying = false;
+
+        async function playDXExperience() {
+            if (isPlaying) return;
+            isPlaying = true;
+
+            const box = document.getElementById('narrationBox');
+            const status = document.getElementById('mangaStatus');
+            const textEl = document.getElementById('speechText');
             
-            // 読み上げ終了時にPromiseを解決
-            uttr.onend = () => resolve();
-            window.speechSynthesis.speak(uttr);
-        });
-    }
-</script>
+            box.style.opacity = '1';
+
+            for (let i = 0; i < mangaScripts.length; i++) {
+                const script = mangaScripts[i];
+                
+                // 表示更新
+                status.innerText = script.label;
+                textEl.innerText = script.text;
+
+                // 読み上げ
+                await speak(script.text);
+
+                // コマ間の少しの休憩
+                await new Promise(r => setTimeout(r, 600));
+            }
+
+            status.innerText = "完了";
+            isPlaying = false;
+        }
+
+        function speak(text) {
+            return new Promise((resolve) => {
+                window.speechSynthesis.cancel();
+                const uttr = new SpeechSynthesisUtterance(text);
+                uttr.lang = "ja-JP";
+                uttr.rate = 1.1;
+                uttr.onend = () => resolve();
+                window.speechSynthesis.speak(uttr);
+            });
+        }
+    </script>
+</body>
+</html>
