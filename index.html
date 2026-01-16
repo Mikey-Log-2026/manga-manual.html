@@ -105,12 +105,28 @@
     </div>
 
     <script>
-        // 4コマのセリフ（実際の漫画に合わせて書き換えてください！）
+        // 4コマのセリフと演出設定
         const mangaScripts = [
-            { label: "【1コマ目】", text: "あぁ、また鍵借りるのに受付するのかぁ面倒だなぁ。" },
-            { label: "【2コマ目】", text: "まだかなぁ拘束時間大丈夫かなぁ次の現場に間に合わないヨォ　うわぁー行列出来ているわぁもぉーなんとかならないのかしら" },
-            { label: "【3コマ目】", text: "そんな時はこれだ！ヘルメットのQRコードをかざすだけ！" },
-            { label: "【4コマ目】", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで安心100パーセント！" }
+            { 
+                label: "【1コマ目】", 
+                text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", 
+                pause: 1200 
+            },
+            { 
+                label: "【2コマ目】", 
+                text: "ズーン！……まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ。うわぁー、行列出来ているわぁ。もぉー、なんとかならないのかしら！", 
+                pause: 1500 
+            },
+            { 
+                label: "【3コマ目】", 
+                text: "ピピーン！そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", 
+                pause: 1000 
+            },
+            { 
+                label: "【4コマ目】", 
+                text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", 
+                pause: 2000 
+            }
         ];
 
         let isPlaying = false;
@@ -128,27 +144,42 @@
             for (let i = 0; i < mangaScripts.length; i++) {
                 const script = mangaScripts[i];
                 
-                // 表示更新
+                // 画面表示の更新
                 status.innerText = script.label;
                 textEl.innerText = script.text;
 
-                // 読み上げ
+                // 音声合成による読み上げ（完了を待機）
                 await speak(script.text);
 
-                // コマ間の少しの休憩
-                await new Promise(r => setTimeout(r, 600));
+                // コマ間の「溜め（ポーズ）」
+                await new Promise(r => setTimeout(r, script.pause));
             }
 
             status.innerText = "完了";
+            textEl.innerText = "MiKey Logで現場をスマートに。";
             isPlaying = false;
         }
 
         function speak(text) {
             return new Promise((resolve) => {
+                // 前の読み上げをキャンセル
                 window.speechSynthesis.cancel();
+                
                 const uttr = new SpeechSynthesisUtterance(text);
                 uttr.lang = "ja-JP";
-                uttr.rate = 1.1;
+                
+                // 効果音ワードに応じた声色の変化
+                if (text.includes("ズーン")) {
+                    uttr.pitch = 0.5; // 低く重い声
+                    uttr.rate = 0.8;  // ゆっくり
+                } else if (text.includes("ピピーン")) {
+                    uttr.pitch = 1.5; // 高く明るい声
+                    uttr.rate = 1.2;  // 少し速めに
+                } else {
+                    uttr.pitch = 1.0; // 標準
+                    uttr.rate = 1.1; 
+                }
+
                 uttr.onend = () => resolve();
                 window.speechSynthesis.speak(uttr);
             });
