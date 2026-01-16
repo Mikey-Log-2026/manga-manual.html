@@ -2,106 +2,106 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MiKey Log - 迫力の4コマDX</title>
+    <title>MiKey Log - ターゲットズームDX</title>
     <style>
         body { 
             font-family: 'Helvetica Neue', Arial, sans-serif; 
-            margin: 0; padding: 0; 
-            background-color: #1a1a1a; /* 集中できるよう背景を暗く */
-            display: flex; flex-direction: column; align-items: center;
-            overflow-x: hidden;
-            color: #fff;
+            margin: 0; padding: 0; background-color: #1a1a1a; 
+            display: flex; flex-direction: column; align-items: center; color: #fff;
         }
         
         h1 { color: #0056b3; width: 100%; text-align: center; padding: 20px 0; background: white; margin: 0; }
 
-        /* 漫画を表示する窓 */
         .manga-viewport {
-            width: 95%;
-            max-width: 500px;
-            height: 400px; 
-            margin: 20px auto;
-            overflow: hidden;
-            border: 6px solid #ff9800; /* 目立つ枠線 */
-            border-radius: 10px;
-            background: #fff;
-            position: relative;
+            width: 95%; max-width: 600px; height: 450px; 
+            margin: 20px auto; overflow: hidden;
+            border: 6px solid #ff9800; border-radius: 10px;
+            background: #fff; position: relative;
             box-shadow: 0 0 30px rgba(255, 152, 0, 0.5);
         }
 
-        /* 漫画画像本体 */
         #mangaImage {
-            width: 100%;
-            height: auto;
-            position: absolute;
-            top: 0;
-            left: 0;
-            /* ズームの滑らかさを調整 */
-            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 100%; height: auto; position: absolute;
+            top: 0; left: 0;
+            transition: transform 1.5s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            /* 最初は全体が見えるように配置 */
+            transform: scale(1.0);
             transform-origin: center center;
         }
 
-        /* 2コマ目の「ズーン」で画面を揺らすアニメーション */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(-1deg); }
-            40% { transform: translate(3px, 2px) rotate(1deg); }
-            60% { transform: translate(-3px, 1px) rotate(-1deg); }
-            80% { transform: translate(3px, 1px) rotate(1deg); }
-            100% { transform: translate(1px, -2px) rotate(0deg); }
-        }
-        .shaking { animation: shake 0.5s infinite; }
-
         .controls { text-align: center; width: 100%; padding-bottom: 40px; }
-        
         .play-button { 
             background: #ff9800; color: white; border: none; padding: 20px 40px; 
             font-size: 1.4em; font-weight: bold; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 6px #e68a00; transition: 0.2s; width: 90%; max-width: 400px;
+            box-shadow: 0 6px #e68a00; transition: 0.2s;
         }
-        .play-button:active { transform: translateY(4px); box-shadow: none; }
 
         #narrationBox { 
-            font-size: 1.2em; font-weight: bold; color: #333; background: #fff; 
-            padding: 20px; border-left: 10px solid #ff9800; margin: 20px auto; 
-            width: 85%; max-width: 600px; min-height: 80px; border-radius: 8px;
+            font-size: 1.2em; color: #333; background: #fff; padding: 20px; 
+            border-left: 10px solid #ff9800; margin: 20px auto; 
+            width: 85%; max-width: 600px; border-radius: 8px;
             opacity: 0; transition: 0.5s;
         }
     </style>
 </head>
 <body>
 
-    <h1>MiKey Log DX Experience</h1>
+    <h1>MiKey Log - ターゲットズーム</h1>
 
     <div class="manga-viewport" id="viewport">
         <img src="manga_4.png" id="mangaImage" alt="4コマ漫画">
     </div>
 
     <div class="controls">
-        <button class="play-button" onclick="playDXExperience()">🔥 迫力のズーム再生！</button>
-        
+        <button class="play-button" onclick="playDXExperience()">🔥 DXナレーション開始</button>
         <div id="narrationBox">
-            <div id="mangaStatus" style="color:#ff9800; font-size:0.9em; margin-bottom:5px;"></div>
+            <div id="mangaStatus" style="color:#ff9800; font-weight:bold;"></div>
             <div id="speechText"></div>
         </div>
     </div>
 
     <script>
+        // オーディオコンテキストの作成（効果音用）
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // 効果音（電子音）を鳴らす関数
+        function playSE(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'pipin') { // ピピーン（高い音）
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'zun') { // ズーン（低い音）
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(55, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.8);
+            }
+        }
+
         const mangaScripts = [
-            { label: "【1コマ目】", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", pause: 800, y: "37%", scale: 2.2 },
-            { label: "【2コマ目】", text: "ズーン！……まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！うわぁー、行列出来ているわぁ。もぉー、なんとかならないのかしら！", pause: 1000, y: "12%", scale: 2.5, effect: "shake" },
-            { label: "【3コマ目】", text: "ピピーン！そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", pause: 800, y: "-12%", scale: 2.5 },
-            { label: "【4コマ目】", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", pause: 1500, y: "-37%", scale: 2.2 }
+            { label: "1コマ目", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", origin: "top left", scale: 2.2 },
+            { label: "2コマ目", text: "まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！行列出来ているわぁ。", origin: "top right", scale: 2.2 },
+            { label: "3コマ目", text: "そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", origin: "bottom right", scale: 2.2, se: "pipin" },
+            { label: "4コマ目", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", origin: "bottom left", scale: 2.2, se: "zun" }
         ];
 
-        let isPlaying = false;
-
         async function playDXExperience() {
-            if (isPlaying) return;
-            isPlaying = true;
-
+            // ブラウザの音量制限解除
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
             const img = document.getElementById('mangaImage');
-            const vp = document.getElementById('viewport');
             const box = document.getElementById('narrationBox');
             const status = document.getElementById('mangaStatus');
             const textEl = document.getElementById('speechText');
@@ -111,34 +111,26 @@
             for (let i = 0; i < mangaScripts.length; i++) {
                 const script = mangaScripts[i];
                 
-                // エフェクト解除
-                vp.classList.remove('shaking');
+                // ズーム位置の設定（transform-originを切り替えてズーム）
+                img.style.transformOrigin = script.origin;
+                img.style.transform = `scale(${script.scale})`;
 
-                // 1. 超ズームアップ設定
-                // scale(2.5) で大きくし、translateY でそのコマを中央に持ってくる
-                img.style.transform = `translateY(${script.y}) scale(${script.scale})`;
-
-                // 2. テキスト更新
                 status.innerText = script.label;
                 textEl.innerText = script.text;
 
-                // 3. 特殊エフェクト（揺れ）
-                if (script.effect === "shake") {
-                    setTimeout(() => vp.classList.add('shaking'), 200);
+                // 効果音がある場合は鳴らす
+                if (script.se) {
+                    setTimeout(() => playSE(script.se), 500);
                 }
 
-                // 4. 読み上げ
                 await speak(script.text);
-
-                // 5. 溜め
-                await new Promise(r => setTimeout(r, script.pause));
+                await new Promise(r => setTimeout(r, 1000));
             }
 
-            vp.classList.remove('shaking');
-            img.style.transform = "translateY(0) scale(1.0)";
+            // 最後は全体に戻す
+            img.style.transform = "scale(1.0)";
             status.innerText = "完了";
-            textEl.innerText = "MiKey Logで現場のDXを実現！";
-            isPlaying = false;
+            textEl.innerText = "MiKey Logでスマートな現場管理を！";
         }
 
         function speak(text) {
@@ -146,15 +138,7 @@
                 window.speechSynthesis.cancel();
                 const uttr = new SpeechSynthesisUtterance(text);
                 uttr.lang = "ja-JP";
-                
-                if (text.includes("ズーン")) {
-                    uttr.pitch = 0.4; uttr.rate = 0.7;
-                } else if (text.includes("ピピーン")) {
-                    uttr.pitch = 1.6; uttr.rate = 1.3;
-                } else {
-                    uttr.pitch = 1.0; uttr.rate = 1.1;
-                }
-
+                uttr.rate = 1.1;
                 uttr.onend = () => resolve();
                 window.speechSynthesis.speak(uttr);
             });
