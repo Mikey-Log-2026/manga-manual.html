@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MiKey Log - ターゲットズームDX</title>
+    <title>MiKey Log - ターゲットズーム（最適化版）</title>
     <style>
         body { 
             font-family: 'Helvetica Neue', Arial, sans-serif; 
@@ -23,8 +23,8 @@
         #mangaImage {
             width: 100%; height: auto; position: absolute;
             top: 0; left: 0;
-            transition: transform 1.5s cubic-bezier(0.45, 0.05, 0.55, 0.95);
-            /* 最初は全体が見えるように配置 */
+            /* ズームの速さを少し滑らか（1.5秒）に設定 */
+            transition: transform 1.5s ease-in-out;
             transform: scale(1.0);
             transform-origin: center center;
         }
@@ -35,6 +35,7 @@
             font-size: 1.4em; font-weight: bold; border-radius: 50px; cursor: pointer;
             box-shadow: 0 6px #e68a00; transition: 0.2s;
         }
+        .play-button:active { transform: translateY(4px); box-shadow: none; }
 
         #narrationBox { 
             font-size: 1.2em; color: #333; background: #fff; padding: 20px; 
@@ -46,43 +47,42 @@
 </head>
 <body>
 
-    <h1>MiKey Log - ターゲットズーム</h1>
+    <h1>MiKey Log - 4コマ解説</h1>
 
     <div class="manga-viewport" id="viewport">
         <img src="manga_4.png" id="mangaImage" alt="4コマ漫画">
     </div>
 
     <div class="controls">
-        <button class="play-button" onclick="playDXExperience()">🔥 DXナレーション開始</button>
+        <button class="play-button" onclick="playDXExperience()">🔊 4コマを再生する</button>
         <div id="narrationBox">
-            <div id="mangaStatus" style="color:#ff9800; font-weight:bold;"></div>
+            <div id="mangaStatus" style="color:#ff9800; font-weight:bold; font-size: 0.9em;"></div>
             <div id="speechText"></div>
         </div>
     </div>
 
     <script>
-        // オーディオコンテキストの作成（効果音用）
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // 効果音（電子音）を鳴らす関数
+        // 効果音（電子音）の生成
         function playSE(type) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
 
-            if (type === 'pipin') { // ピピーン（高い音）
+            if (type === 'pipin') { // ピピーン
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime + 0.1);
                 gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
-            } else if (type === 'zun') { // ズーン（低い音）
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'zun') { // ズーン
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(110, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(55, audioCtx.currentTime + 0.5);
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.6);
                 gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
                 osc.start();
@@ -90,15 +90,16 @@
             }
         }
 
+        // シナリオ設定
+        // scaleを 1.5 に下げて、ズームを控えめにしました。
         const mangaScripts = [
-            { label: "1コマ目", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", origin: "top left", scale: 2.2 },
-            { label: "2コマ目", text: "まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！行列出来ているわぁ。", origin: "top right", scale: 2.2 },
-            { label: "3コマ目", text: "そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", origin: "bottom right", scale: 2.2, se: "pipin" },
-            { label: "4コマ目", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", origin: "bottom left", scale: 2.2, se: "zun" }
+            { label: "1コマ目（左上）", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", origin: "top left", scale: 1.5 },
+            { label: "2コマ目（右上）", text: "まだかなぁ。拘束時間大丈夫かなぁ。次の現場に間に合わないヨォ！行列出来ているわぁ。", origin: "top right", scale: 1.5 },
+            { label: "3コマ目（右下）", text: "そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", origin: "bottom right", scale: 1.5, se: "pipin" },
+            { label: "4コマ目（左下）", text: "誰がいつ何を借りたか自動で記録。管理の手間ゼロで、安心100パーセント！", origin: "bottom left", scale: 1.5, se: "zun" }
         ];
 
         async function playDXExperience() {
-            // ブラウザの音量制限解除
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
             const img = document.getElementById('mangaImage');
@@ -111,23 +112,23 @@
             for (let i = 0; i < mangaScripts.length; i++) {
                 const script = mangaScripts[i];
                 
-                // ズーム位置の設定（transform-originを切り替えてズーム）
+                // ズーム実行
                 img.style.transformOrigin = script.origin;
                 img.style.transform = `scale(${script.scale})`;
 
                 status.innerText = script.label;
                 textEl.innerText = script.text;
 
-                // 効果音がある場合は鳴らす
+                // 効果音のタイミング調整
                 if (script.se) {
-                    setTimeout(() => playSE(script.se), 500);
+                    setTimeout(() => playSE(script.se), 300);
                 }
 
                 await speak(script.text);
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 800)); // コマ間の間隔
             }
 
-            // 最後は全体に戻す
+            // 終了後に全体表示へ戻す
             img.style.transform = "scale(1.0)";
             status.innerText = "完了";
             textEl.innerText = "MiKey Logでスマートな現場管理を！";
