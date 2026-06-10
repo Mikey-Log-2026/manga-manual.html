@@ -8,7 +8,10 @@
         body { 
             font-family: 'Helvetica Neue', Arial, "Hiragino Sans", sans-serif; 
             margin: 0; padding: 0; background-color: #000; 
-            display: flex; flex-direction: column; height: 100vh;
+            display: flex; flex-direction: column;
+            /* dynamic vh を使うことで、スマホのブラウザバーを考慮した正確な全画面にします */
+            height: 100vh;
+            height: 100dvh; 
             overflow: hidden; 
         }
         
@@ -19,6 +22,8 @@
 
         .manga-viewport {
             flex-grow: 1; 
+            /* 縮小も許可して、ボタンのスペースを奪わないようにします */
+            flex-shrink: 1; 
             width: 100%; position: relative;
             background: #fff; overflow: hidden;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
@@ -27,7 +32,6 @@
         #mangaImage {
             width: 100%; height: auto; position: absolute;
             top: 0; left: 0;
-            /* transitionを1.2sから1.6sに変更して動きをゆっくりに */
             transition: transform 1.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform: scale(1.0);
             transform-origin: center center;
@@ -45,21 +49,24 @@
         .ui-container {
             background: #222; padding: 15px; border-top: 3px solid #ff9800;
             display: flex; flex-direction: column; align-items: center;
-            flex-shrink: 0;
+            /* 絶対に潰れないように固定（最優先確保） */
+            flex-shrink: 0; 
+            /* スマホの画面最下部のセーフエリア（ノッチなど）に対応 */
+            padding-bottom: calc(15px + env(safe-area-inset-bottom)); 
         }
 
         #narrationBox { 
-            font-size: 1.1em; font-weight: bold; color: #fff; 
-            background: rgba(255,255,255,0.1); padding: 15px; 
-            border-left: 6px solid #ff9800; margin-bottom: 15px;
-            width: 90%; min-height: 3.5em; border-radius: 4px;
+            font-size: 1.0em; font-weight: bold; color: #fff; 
+            background: rgba(255,255,255,0.1); padding: 12px; 
+            border-left: 6px solid #ff9800; margin-bottom: 12px;
+            width: 90%; min-height: 3.0em; border-radius: 4px;
             opacity: 0; transition: 0.3s;
         }
 
         .play-button { 
             background: linear-gradient(45deg, #ff9800, #ff5722); 
             color: white; border: none; width: 95%; max-width: 400px;
-            padding: 18px 0; font-size: 1.4em; font-weight: bold; 
+            padding: 15px 0; font-size: 1.3em; font-weight: bold; 
             border-radius: 12px; cursor: pointer;
             box-shadow: 0 4px #bf360c; transition: 0.1s;
             -webkit-tap-highlight-color: transparent;
@@ -129,7 +136,7 @@
             { label: "1コマ目", text: "あぁ、また鍵借りるのに受付するのかぁ。面倒だなぁ……。", origin: "0% 0%", scale: 2.1 },
             { label: "2コマ目", text: "行列出来ているわぁ。次の現場に間に合わないヨォ！", origin: "100% 0%", scale: 2.1 },
             { label: "3コマ目", text: "そんな時はこれだ！ヘルメットの二次元コードをかざすだけ！", origin: "100% 100%", scale: 2.1, se: "pipin" },
-            { label: "4コマ目", text: "管理の手間ゼロで、安心100パーセント！", origin: "0% 100%", scale: 2.1, se: "jajaan" }
+            { label: "4コマ目", text: "管理の手場ゼロで、安心100パーセント！", origin: "0% 100%", scale: 2.1, se: "jajaan" }
         ];
 
         async function playDXExperience() {
@@ -153,7 +160,6 @@
                 if (script.se) setTimeout(() => playSE(script.se), 400);
 
                 await speak(script.text);
-                // 次のコマへ行く前の待ち時間を 800ms -> 1500ms に変更
                 await new Promise(r => setTimeout(r, 1500));
             }
 
@@ -168,7 +174,6 @@
                 window.speechSynthesis.cancel();
                 const uttr = new SpeechSynthesisUtterance(text);
                 uttr.lang = "ja-JP";
-                // 読み上げ速度を 1.3 -> 1.0 (標準) に変更
                 uttr.rate = 1.0;
                 uttr.onend = () => resolve();
                 window.speechSynthesis.speak(uttr);
